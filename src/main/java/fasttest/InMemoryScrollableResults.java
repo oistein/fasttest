@@ -17,6 +17,7 @@ import org.hibernate.type.Type;
 
 public class InMemoryScrollableResults implements ScrollableResults {
 
+	@SuppressWarnings("unused")
 	private final List<Object> list;
 	private int current;
 	private int size;

@@ -1,16 +1,14 @@
 package fasttest.matchers;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import fasttest.InMemoryMatcher;
 
-public class LogicalMatcher extends BaseMatcher<Object> {
+public class LogicalMatcher implements InMemoryMatcher {
 
-	private final Matcher<Object> lhs;
-	private final Matcher<Object> rhs;
+	private final InMemoryMatcher lhs;
+	private final InMemoryMatcher rhs;
 	private final String op;
 
-	public LogicalMatcher(Matcher<Object> lhs, Matcher<Object> rhs, String op) {
+	public LogicalMatcher(InMemoryMatcher lhs, InMemoryMatcher rhs, String op) {
 		this.lhs = lhs;
 		this.rhs = rhs;
 		this.op = op;
@@ -21,7 +19,5 @@ public class LogicalMatcher extends BaseMatcher<Object> {
 			                     lhs.matches(item) && rhs.matches(item);
 	}
 
-	public void describeTo(Description arg0) {
-	}
 
 }

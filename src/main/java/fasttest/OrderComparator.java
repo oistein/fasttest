@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.fest.reflect.core.Reflection;
 
 public class OrderComparator implements Comparator<Object> {
 
@@ -24,11 +23,11 @@ public class OrderComparator implements Comparator<Object> {
 		try {
 			Class<?> o1type = o1.getClass().getDeclaredField(propertyName).getType();
 			if (o1type.equals(int.class)) {
-				compared = Reflection.field(propertyName).ofType(int.class).in(o1).get().compareTo(
-						   Reflection.field(propertyName).ofType(int.class).in(o2).get());
+				compared = ((Integer)ObjectManipulation.getFieldValue(o1, propertyName)).compareTo(
+						((Integer)ObjectManipulation.getFieldValue(o2, propertyName)));
 			} else if (Comparable.class.isAssignableFrom(o1type)) {
-				compared = Reflection.field(propertyName).ofType(Comparable.class).in(o1).get().compareTo(
-						   Reflection.field(propertyName).ofType(Comparable.class).in(o2).get());
+				compared = ((Comparable<Object>)ObjectManipulation.getFieldValue(o1, propertyName)).compareTo(
+						((Comparable<Object>)ObjectManipulation.getFieldValue(o2, propertyName)));
 			}
 			
 			Iterator<OrderComparator> iterator = others.iterator();

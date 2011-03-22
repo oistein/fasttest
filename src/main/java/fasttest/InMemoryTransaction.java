@@ -22,7 +22,7 @@ public class InMemoryTransaction implements Transaction {
 	public InMemoryTransaction(InMemorySession session) {
 		this.original = session.getStore();
 		this.session = session;
-		this.copy = (HashMap<Serializable, Object>) CopyUtils.copy(original);
+		this.copy = (HashMap<Serializable, Object>) ObjectManipulation.copy(original);
 		begin();
 	}
 

@@ -10,7 +10,7 @@ public class CopyUtilsTest {
 	@Test
 	public void testCopySimple() throws Exception {
 		Address address = new Address("foo");
-		Address addressCopy = (Address) CopyUtils.copy(address);
+		Address addressCopy = (Address) ObjectManipulation.copy(address);
 		
 		assertThat(addressCopy.getStreet()).isEqualTo("foo");
 		assertThat(addressCopy).isEqualTo(address);

@@ -3,12 +3,11 @@ package fasttest.matchers;
 import java.util.Arrays;
 import java.util.List;
 
-import org.fest.reflect.core.Reflection;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import fasttest.InMemoryMatcher;
+import fasttest.ObjectManipulation;
 
 
-public class InMatcher extends BaseMatcher<Object> {
+public class InMatcher implements InMemoryMatcher {
 
 	private final String propertyName;
 	private final List<Object> values;
@@ -19,12 +18,7 @@ public class InMatcher extends BaseMatcher<Object> {
 	}
 
 	public boolean matches(Object item) {
-		Object obj = Reflection.field(propertyName).ofType(Object.class).in(item).get();
+		Object obj = ObjectManipulation.getFieldValue(item, propertyName);
 		return values.contains(obj);
 	}
-
-	public void describeTo(Description arg0) {
-	}
-
-
 }

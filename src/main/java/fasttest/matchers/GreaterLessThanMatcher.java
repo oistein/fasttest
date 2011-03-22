@@ -1,14 +1,12 @@
 package fasttest.matchers;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.fest.reflect.core.Reflection;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import fasttest.InMemoryMatcher;
+import fasttest.ObjectManipulation;
 
-public class GreaterLessThanMatcher extends BaseMatcher<Object> {
+public class GreaterLessThanMatcher implements InMemoryMatcher {
 
 	private final String propertyName;
 	private final Object value;
@@ -22,9 +20,7 @@ public class GreaterLessThanMatcher extends BaseMatcher<Object> {
 
 	public boolean matches(Object item) {
 		int compared = 0;
-		try {
-			Field field = item.getClass().getDeclaredField(propertyName);
-			Object obj = Reflection.field(propertyName).ofType(field.getType()).in(item).get();
+			Object obj = ObjectManipulation.getFieldValue(item, propertyName);
 			if (long.class.isInstance(obj) || Long.class.isInstance(obj)) {
 				compared = ((Long)value).compareTo(((Long)obj));
 			}
@@ -46,16 +42,6 @@ public class GreaterLessThanMatcher extends BaseMatcher<Object> {
 			if (BigInteger.class.isInstance(obj)) {
 				compared = ((BigInteger)value).compareTo(((BigInteger)obj));
 			}
-		} catch (NoSuchFieldException e) {
-			throw new RuntimeException("No field " + propertyName + " in " + item.getClass());
-		}
-		
 		return greaterThan ? compared < 0 : compared > 0;
 	}
-
-	public void describeTo(Description description) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

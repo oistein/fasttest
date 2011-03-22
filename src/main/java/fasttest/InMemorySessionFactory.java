@@ -57,7 +57,7 @@ public class InMemorySessionFactory implements SessionFactory {
 		return null;
 	}
 
-	public ClassMetadata getClassMetadata(Class entityClass) {
+	public ClassMetadata getClassMetadata(@SuppressWarnings("rawtypes") Class entityClass) {
 		return null;
 	}
 
@@ -69,11 +69,11 @@ public class InMemorySessionFactory implements SessionFactory {
 		return null;
 	}
 
-	public Map getAllClassMetadata() {
+	public Map<Object, Object> getAllClassMetadata() {
 		return null;
 	}
 
-	public Map getAllCollectionMetadata() {
+	public Map<Object, Object> getAllCollectionMetadata() {
 		return null;
 	}
 
@@ -92,11 +92,11 @@ public class InMemorySessionFactory implements SessionFactory {
 		return null;
 	}
 
-	public void evict(Class persistentClass) throws HibernateException {
+	public void evict(@SuppressWarnings("rawtypes") Class persistentClass) throws HibernateException {
 
 	}
 
-	public void evict(Class persistentClass, Serializable id)
+	public void evict(@SuppressWarnings("rawtypes") Class persistentClass, Serializable id)
 			throws HibernateException {
 
 	}
@@ -121,7 +121,7 @@ public class InMemorySessionFactory implements SessionFactory {
 	public void evictQueries() throws HibernateException {
 	}
 
-	public Set getDefinedFilterNames() {
+	public Set<Object> getDefinedFilterNames() {
 		return null;
 	}
 

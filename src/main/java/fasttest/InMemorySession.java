@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.persistence.Id;
 
-import org.fest.reflect.core.Reflection;
 import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
@@ -117,12 +116,14 @@ public class InMemorySession implements Session {
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object load(Class theClass, Serializable id, LockMode lockMode)
 			throws HibernateException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object load(Class theClass, Serializable id, LockOptions lockOptions)
 			throws HibernateException {
 		// TODO Auto-generated method stub
@@ -137,25 +138,21 @@ public class InMemorySession implements Session {
 
 	public Object load(String entityName, Serializable id,
 			LockOptions lockOptions) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object load(Class theClass, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object load(String entityName, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void load(Object object, Serializable id) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void replicate(Object object, ReplicationMode replicationMode)
@@ -177,8 +174,8 @@ public class InMemorySession implements Session {
 		String idFieldName = getIdFieldName(object);
 		
 		Long id = incrementor++;
-		Reflection.field(idFieldName).ofType(Long.class).in(object).set(id);
-		transaction.getStore().put(id, CopyUtils.copy(object));
+		ObjectManipulation.setFieldValue(object, idFieldName, id);
+		transaction.getStore().put(id, ObjectManipulation.copy(object));
 		
 		return id;
 	}
@@ -199,91 +196,65 @@ public class InMemorySession implements Session {
 
 	public Serializable save(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void saveOrUpdate(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
 
 	}
 
 	public void saveOrUpdate(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void update(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void update(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public Object merge(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object merge(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void persist(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
 
 	}
 
 	public void persist(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void delete(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void delete(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void lock(Object object, LockMode lockMode)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void lock(String entityName, Object object, LockMode lockMode)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public LockRequest buildLockRequest(LockOptions lockOptions) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void refresh(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void refresh(Object object, LockMode lockMode)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void refresh(Object object, LockOptions lockOptions)
@@ -302,11 +273,11 @@ public class InMemorySession implements Session {
 		return transaction;
 	}
 
-	public Criteria createCriteria(Class persistentClass) {
+	public Criteria createCriteria(@SuppressWarnings("rawtypes") Class persistentClass) {
 		return new InMemoryCriteria(persistentClass, getTransaction());
 	}
 
-	public Criteria createCriteria(Class persistentClass, String alias) {
+	public Criteria createCriteria(@SuppressWarnings("rawtypes") Class persistentClass, String alias) {
 		return null;
 	}
 
@@ -315,218 +286,172 @@ public class InMemorySession implements Session {
 	}
 
 	public Criteria createCriteria(String entityName, String alias) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Query createQuery(String queryString) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public SQLQuery createSQLQuery(String queryString)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Query createFilter(Object collection, String queryString)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Query getNamedQuery(String queryName) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void clear() {
-		// TODO Auto-generated method stub
-
 	}
 
-	public Object get(Class clazz, Serializable id) throws HibernateException {
+	public Object get(@SuppressWarnings("rawtypes") Class clazz, Serializable id) throws HibernateException {
 		return transaction.getStore().get(id);
 	}
 
-	public Object get(Class clazz, Serializable id, LockMode lockMode)
+	public Object get(@SuppressWarnings("rawtypes") Class clazz, Serializable id, LockMode lockMode)
 			throws HibernateException {
 		return null;
 	}
 
-	public Object get(Class clazz, Serializable id, LockOptions lockOptions)
+	public Object get(@SuppressWarnings("rawtypes") Class clazz, Serializable id, LockOptions lockOptions)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object get(String entityName, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object get(String entityName, Serializable id, LockMode lockMode)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object get(String entityName, Serializable id,
 			LockOptions lockOptions) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getEntityName(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Filter enableFilter(String filterName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Filter getEnabledFilter(String filterName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void disableFilter(String filterName) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public SessionStatistics getStatistics() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public boolean isReadOnly(Object entityOrProxy) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public void setReadOnly(Object entityOrProxy, boolean readOnly) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void doWork(Work work) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public Connection disconnect() throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void reconnect() throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void reconnect(Connection connection) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public boolean isFetchProfileEnabled(String name)
 			throws UnknownProfileException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public void enableFetchProfile(String name) throws UnknownProfileException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void disableFetchProfile(String name) throws UnknownProfileException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public Object saveOrUpdateCopy(Object object) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object saveOrUpdateCopy(Object object, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object saveOrUpdateCopy(String entityName, Object object)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object saveOrUpdateCopy(String entityName, Object object,
 			Serializable id) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List find(String query) throws HibernateException {
-		// TODO Auto-generated method stub
+	public List<Object> find(String query) throws HibernateException {
 		return null;
 	}
 
-	public List find(String query, Object value, Type type)
+	public List<Object> find(String query, Object value, Type type)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List find(String query, Object[] values, Type[] types)
+	public List<Object> find(String query, Object[] values, Type[] types)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Iterator iterate(String query) throws HibernateException {
-		// TODO Auto-generated method stub
+	public Iterator<Object> iterate(String query) throws HibernateException {
 		return null;
 	}
 
-	public Iterator iterate(String query, Object value, Type type)
+	public Iterator<Object> iterate(String query, Object value, Type type)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Iterator iterate(String query, Object[] values, Type[] types)
+	public Iterator<Object> iterate(String query, Object[] values, Type[] types)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Collection filter(Object collection, String filter)
+	public Collection<Object> filter(Object collection, String filter)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Collection filter(Object collection, String filter, Object value,
+	public Collection<Object> filter(Object collection, String filter, Object value,
 			Type type) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Collection filter(Object collection, String filter, Object[] values,
+	public Collection<Object> filter(Object collection, String filter, Object[] values,
 			Type[] types) throws HibernateException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public int delete(String query) throws HibernateException {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -538,43 +463,30 @@ public class InMemorySession implements Session {
 
 	public int delete(String query, Object[] values, Type[] types)
 			throws HibernateException {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	public Query createSQLQuery(String sql, String returnAlias,
-			Class returnClass) {
-		// TODO Auto-generated method stub
+	public Query createSQLQuery(String sql, String returnAlias, @SuppressWarnings("rawtypes") Class returnClass) {
 		return null;
 	}
 
-	public Query createSQLQuery(String sql, String[] returnAliases,
-			Class[] returnClasses) {
-		// TODO Auto-generated method stub
+	public Query createSQLQuery(String sql, String[] returnAliases, @SuppressWarnings("rawtypes") Class[] returnClasses) {
 		return null;
 	}
 
 	public void save(Object object, Serializable id) throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void save(String entityName, Object object, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void update(Object object, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void update(String entityName, Object object, Serializable id)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setStore(HashMap<Serializable, Object> store) {
@@ -584,5 +496,4 @@ public class InMemorySession implements Session {
 	public HashMap<Serializable, Object> getStore() {
 		return store;
 	}
-
 }

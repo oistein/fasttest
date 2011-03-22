@@ -11,7 +11,7 @@ public class DataTest {
 	protected static SessionFactory createSessionFactory() {
 		return new AnnotationConfiguration()
 		.setProperty(Environment.DRIVER, org.h2.Driver.class.getName())
-		.setProperty(Environment.URL, "jdbc:h2:mem")
+		.setProperty(Environment.URL, "jdbc:h2:mem:test")
 		.setProperty(Environment.USER, "sa")
 		.setProperty(Environment.PASS, "")
 		.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect")

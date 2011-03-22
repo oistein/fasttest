@@ -1,10 +1,11 @@
 package fasttest.matchers;
 
-import org.fest.reflect.core.Reflection;
-import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
-public class EqualMatcher extends BaseMatcher<Object> {
+import fasttest.InMemoryMatcher;
+import fasttest.ObjectManipulation;
+
+public class EqualMatcher implements InMemoryMatcher {
 
 	private final String propertyName;
 	private final Object value;
@@ -18,7 +19,7 @@ public class EqualMatcher extends BaseMatcher<Object> {
 	}
 
 	public boolean matches(Object item) {
-		Object val = Reflection.field(propertyName).ofType(Object.class).in(item).get();
+		Object val = ObjectManipulation.getFieldValue(item, propertyName);
 		return ignoringCase ? value.equals(val.toString().toLowerCase()) :
 			                  value.equals(val);
 	}

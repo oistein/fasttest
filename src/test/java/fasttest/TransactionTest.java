@@ -47,7 +47,7 @@ public class TransactionTest extends DataTest {
 		
 		assertThat(session.get(Person.class, save)).isNotNull();
 		
-	}
+	} 
 	
 	@Test
 	public void testRollback() throws Exception {

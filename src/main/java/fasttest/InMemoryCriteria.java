@@ -1,13 +1,9 @@
 package fasttest;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.fest.reflect.core.Reflection;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -29,7 +25,6 @@ import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.transform.PassThroughResultTransformer;
 import org.hibernate.transform.ResultTransformer;
 
-import ch.lambdaj.Lambda;
 import fasttest.matchers.EqualMatcher;
 import fasttest.matchers.GreaterLessThanMatcher;
 import fasttest.matchers.InMatcher;
@@ -38,7 +33,7 @@ import fasttest.matchers.NotMatcher;
 
 public class InMemoryCriteria implements Criteria {
 
-	private final List<Matcher<Object>> matchers = new ArrayList<Matcher<Object>>();
+	private final List<InMemoryMatcher> matchers = new ArrayList<InMemoryMatcher>();
 	private OrderComparator comparator;
 	private final InMemoryTransaction transaction;
 	private Projection projection;
@@ -47,7 +42,7 @@ public class InMemoryCriteria implements Criteria {
 	
 	public InMemoryCriteria(Class<?> persistentClass, InMemoryTransaction transaction) {
 		this.transaction = transaction;
-		matchers.add(Matchers.instanceOf(persistentClass));
+		matchers.add(new InstanceOfMatcher(persistentClass));
 	}
 	
 	public String getAlias() {
@@ -64,13 +59,13 @@ public class InMemoryCriteria implements Criteria {
 		return this;
 	}
 
-	private Matcher<Object> getMatcherForCriterion(Criterion criterion) {
+	private InMemoryMatcher getMatcherForCriterion(Criterion criterion) {
 		if (criterion instanceof SimpleExpression) {
 			SimpleExpression expr = (SimpleExpression) criterion;
-			String op = Reflection.field("op").ofType(String.class).in(expr).get();
-			Object value = Reflection.field("value").ofType(Object.class).in(expr).get();
-			String propertyName = Reflection.field("propertyName").ofType(String.class).in(expr).get();
-			boolean ignoringCase = Reflection.field("ignoreCase").ofType(boolean.class).in(expr).get();
+			String op = (String) ObjectManipulation.getFieldValue(expr, "op");
+			Object value = ObjectManipulation.getFieldValue(expr, "value");
+			String propertyName = (String) ObjectManipulation.getFieldValue(expr, "propertyName");
+			boolean ignoringCase = (Boolean) ObjectManipulation.getFieldValue(expr, "ignoreCase"); 
 			if ("=".equals(op)) {
 				return new EqualMatcher(propertyName, value, ignoringCase);
 			}
@@ -82,20 +77,19 @@ public class InMemoryCriteria implements Criteria {
 			}
 		}
 		if (criterion instanceof InExpression) {
-			Object[] values = Reflection.field("values").ofType(Object[].class).in(criterion).get();
-			String propertyName = Reflection.field("propertyName").ofType(String.class).in(criterion).get();
+			Object[] values = (Object[]) ObjectManipulation.getFieldValue(criterion, "values");
+			String propertyName = (String) ObjectManipulation.getFieldValue(criterion, "propertyName");
 			return new InMatcher(propertyName, values);
 		}
 		
 		if (criterion instanceof LogicalExpression) {
-			Criterion lhs = Reflection.field("lhs").ofType(Criterion.class).in(criterion).get();
-			Criterion rhs = Reflection.field("rhs").ofType(Criterion.class).in(criterion).get();
-			String op = Reflection.field("op").ofType(String.class).in(criterion).get();
+			Criterion lhs = (Criterion) ObjectManipulation.getFieldValue(criterion, "lhs");
+			Criterion rhs = (Criterion) ObjectManipulation.getFieldValue(criterion, "rhs");
+			String op = (String) ObjectManipulation.getFieldValue(criterion, "op");
 			return new LogicalMatcher(getMatcherForCriterion(lhs), getMatcherForCriterion(rhs), op);
 		}
 		if (criterion instanceof NotExpression) {
-			NotExpression expr = (NotExpression) criterion;
-			Criterion inner = Reflection.field("criterion").ofType(Criterion.class).in(expr).get();
+			Criterion inner = (Criterion) ObjectManipulation.getFieldValue(criterion, "criterion");
 			return new NotMatcher(getMatcherForCriterion(inner));
 		}
 		
@@ -103,8 +97,8 @@ public class InMemoryCriteria implements Criteria {
 	}
 
 	public Criteria addOrder(Order order) {
-		final boolean ascending = Reflection.field("ascending").ofType(boolean.class).in(order).get();
-		final String propertyName = Reflection.field("propertyName").ofType(String.class).in(order).get();
+		final boolean ascending = (Boolean) ObjectManipulation.getFieldValue(order, "ascending");
+		final String propertyName = (String) ObjectManipulation.getFieldValue(order, "propertyName");
 		if (comparator == null) {
 			comparator = new OrderComparator(ascending, propertyName);
 		} else {
@@ -223,7 +217,7 @@ public class InMemoryCriteria implements Criteria {
 		List<Object> result = new ArrayList<Object>();
 		for (Object candidate : transaction.getStore().values()) {
 			boolean add = true;
-			for (Matcher<Object> matcher : matchers) {
+			for (InMemoryMatcher matcher : matchers) {
 				add &= matcher.matches(candidate);
 			}
 			
@@ -247,7 +241,7 @@ public class InMemoryCriteria implements Criteria {
 				if (pproj.isGrouped()) {
 					List<Object> distincts = new ArrayList<Object>();
 					for (int y = 0; y < result.size(); y++) {
-						Object val = getFieldValue(result.get(y), pproj.getPropertyName());
+						Object val = ObjectManipulation.getFieldValue(result.get(y), pproj.getPropertyName());
 						if (!distincts.contains(val)) distincts.add(val);
 					}
 					for (int y = 0; y < distincts.size(); y++) {
@@ -255,7 +249,7 @@ public class InMemoryCriteria implements Criteria {
 					}
 				} else {
 					for (int y = 0; y < result.size(); y++) {
-						Object val = getFieldValue(result.get(y), pproj.getPropertyName());
+						Object val = ObjectManipulation.getFieldValue(result.get(y), pproj.getPropertyName());
 						projection.setCell(y,i,val);
 					}
 				}
@@ -266,16 +260,16 @@ public class InMemoryCriteria implements Criteria {
 				AggregateProjection aproj = (AggregateProjection) proj;
 				String functionName = aproj.getFunctionName();
 				if ("sum".equals(functionName)) {
-					List<Object> sum = new ArrayList<Object>();
+					Long sum = 0L;
 					for (Object candidate : result) {
-						Object val = getFieldValue(candidate, aproj.getPropertyName());
-						sum.add(val); 
+						Object val = ObjectManipulation.getFieldValue(candidate, aproj.getPropertyName());
+						sum += (Integer) val;
 					}
-					projection.setCell(0,i, Long.parseLong(Lambda.sum(sum).toString()));
+					projection.setCell(0,i, sum);
 				} else if ("avg".equals(functionName)) {
 					long sum = 0;
 					for (Object candidate : result) {
-						Object val = getFieldValue(candidate, aproj.getPropertyName());
+						Object val = ObjectManipulation.getFieldValue(candidate, aproj.getPropertyName());
 						sum += Long.parseLong(val.toString());
 					}
 					projection.setCell(0, i, sum / (double) result.size());
@@ -286,27 +280,6 @@ public class InMemoryCriteria implements Criteria {
 		
 		
 		return maxResults != -1 ? projection.transformResult(transformer, aggregate).subList(0, maxResults) : projection.transformResult(transformer, aggregate);
-	}
-
-	private Object getFieldValue(Object candidate, String propertyName) {
-		try {
-			Field field = candidate.getClass().getDeclaredField(propertyName);
-			if (Object.class.isAssignableFrom(field.getType())) {
-				return Reflection.field(propertyName).ofType(Object.class).in(candidate).get();
-			} else {
-				if (int.class.equals(field.getType())) return Reflection.field(propertyName).ofType(int.class).in(candidate).get();
-				if (byte.class.equals(field.getType())) return Reflection.field(propertyName).ofType(byte.class).in(candidate).get();
-				if (short.class.equals(field.getType())) return Reflection.field(propertyName).ofType(short.class).in(candidate).get();
-				if (long.class.equals(field.getType())) return Reflection.field(propertyName).ofType(long.class).in(candidate).get();
-				if (double.class.equals(field.getType())) return Reflection.field(propertyName).ofType(double.class).in(candidate).get();
-				if (float.class.equals(field.getType())) return Reflection.field(propertyName).ofType(float.class).in(candidate).get();
-				if (boolean.class.equals(field.getType())) return Reflection.field(propertyName).ofType(boolean.class).in(candidate).get();
-				if (char.class.equals(field.getType())) return Reflection.field(propertyName).ofType(char.class).in(candidate).get();
-			}
-			throw new RuntimeException("Unable to get " + propertyName + " from " + candidate.getClass() + " (" + candidate + ")");
-		} catch (NoSuchFieldException e) {
-			throw new RuntimeException("Unable to get " + propertyName + " from " + candidate.getClass() + " (" + candidate + ")");
-		} 
 	}
 
 	public ScrollableResults scroll() throws HibernateException {

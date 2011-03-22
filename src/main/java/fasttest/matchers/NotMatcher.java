@@ -1,14 +1,12 @@
 package fasttest.matchers;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import fasttest.InMemoryMatcher;
 
-public class NotMatcher extends BaseMatcher<Object> {
+public class NotMatcher implements InMemoryMatcher {
 
-	private final Matcher<Object> matcher;
+	private final InMemoryMatcher matcher;
 
-	public NotMatcher(Matcher<Object> matcher) {
+	public NotMatcher(InMemoryMatcher matcher) {
 		this.matcher = matcher;
 	}
 
@@ -16,8 +14,5 @@ public class NotMatcher extends BaseMatcher<Object> {
 		return !matcher.matches(object);
 	}
 
-	public void describeTo(Description arg0) {
-		
-	}
 
 }

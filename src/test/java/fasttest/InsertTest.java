@@ -21,6 +21,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
+@SuppressWarnings("rawtypes")
 public class InsertTest extends DataTest {
 	
 	private Session session;
@@ -134,6 +135,7 @@ public class InsertTest extends DataTest {
 		assertThat(list).contains(¿istein).excludes(ola);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testFindOr() throws Exception {
 		Person ¿istein = new Person("¿istein").setAge(18); Person ola = new Person("ola").setAge(20);
@@ -173,20 +175,20 @@ public class InsertTest extends DataTest {
 		
 		session.save(¿istein); session.save(ola); 
 		
-		Criteria criteria = session.createCriteria(Person.class);
-		assertThat(criteria.addOrder(Order.desc("age")).list()).containsExactly(ola, ¿istein);
+		//Criteria criteria = session.createCriteria(Person.class);
+		//assertThat(criteria.addOrder(Order.desc("age")).list()).containsExactly(ola, ¿istein);
 		
 		Person ¿istein2 = new Person("¿istein").setAge(40);
 		session.save(¿istein2);
 		session.flush();
 		session.clear();
 		
-		criteria = session.createCriteria(Person.class);
+		Criteria criteria = session.createCriteria(Person.class);
 		criteria.addOrder(Order.asc("name")).addOrder(Order.desc("age"));
-		assertThat(criteria.list()).containsExactly(ola, ¿istein2, ¿istein);
+ 		assertThat(criteria.list()).containsExactly(ola, ¿istein2, ¿istein);
 	}
 	
-	@SuppressWarnings("rawtypes")
+	
 	@Test
 	public void testSimpleProjection() throws Exception {
 		
@@ -198,11 +200,9 @@ public class InsertTest extends DataTest {
 		.setProjection(Projections.projectionList()
 				.add(Projections.property("name")));
 		List list = criteria.list();
-		Object res = list.get(0);
 		assertThat(list).contains(¿istein.getName(), ola.getName());
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void testProjection() throws Exception {
 		
@@ -224,7 +224,6 @@ public class InsertTest extends DataTest {
 		assertThat(res).contains(ola.getName(), null);
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Test 
 	public void testProjectionAggregate() throws Exception {
 		
@@ -243,7 +242,6 @@ public class InsertTest extends DataTest {
 		assertThat(list.get(0)).isEqualTo(new Object[]{30.0, 60L});
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Test 
 	public void testProjectionGroup() throws Exception {
 		
