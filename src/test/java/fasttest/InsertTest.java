@@ -4,6 +4,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -54,7 +55,7 @@ public class InsertTest extends DataTest {
 		assertThat(session.save(ola)).isNotNull();
 		session.flush();
 		session.clear();
-		
+
 		Person ret = (Person) session.get(Person.class, person.getId());
 		assertThat(ret).isNotNull();
 		assertThat(ret).isEqualTo(person);
@@ -169,21 +170,41 @@ public class InsertTest extends DataTest {
 		assertThat(list).contains(¿istein, ola).excludes(¿istein2);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testRestriction() throws Exception {
+		Person ¿istein = new Person("¿istein").setAge(18); Person ¿istein3 = new Person("ola").setAge(20);
+		Person ¿istein2 = new Person("¿istein").setAge(18);;
+		session.save(¿istein); session.save(¿istein3); session.save(¿istein2);
+		session.flush();
+		session.clear();
+		
+		HashMap<Object, Object> map = new HashMap<Object, Object>();
+		map.put("name", "¿istein");
+		map.put("age", 18);
+		
+		Criteria criteria = session.createCriteria(Person.class);
+		criteria.add(Restrictions.allEq(map));
+		List<Person> list = criteria.list();
+		
+		assertThat(list).contains(¿istein, ¿istein2).excludes(¿istein3);
+	}
+	
 	@Test
 	public void testFindOrder() throws Exception {
 		Person ¿istein = new Person("¿istein").setAge(18); Person ola = new Person("ola").setAge(20);
 		
 		session.save(¿istein); session.save(ola); 
 		
-		//Criteria criteria = session.createCriteria(Person.class);
-		//assertThat(criteria.addOrder(Order.desc("age")).list()).containsExactly(ola, ¿istein);
+		Criteria criteria = session.createCriteria(Person.class);
+		assertThat(criteria.addOrder(Order.desc("age")).list()).containsExactly(ola, ¿istein);
 		
 		Person ¿istein2 = new Person("¿istein").setAge(40);
 		session.save(¿istein2);
 		session.flush();
 		session.clear();
 		
-		Criteria criteria = session.createCriteria(Person.class);
+		criteria = session.createCriteria(Person.class);
 		criteria.addOrder(Order.asc("name")).addOrder(Order.desc("age"));
  		assertThat(criteria.list()).containsExactly(ola, ¿istein2, ¿istein);
 	}

@@ -15,6 +15,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.criterion.AggregateProjection;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.InExpression;
+import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.NotExpression;
 import org.hibernate.criterion.Order;
@@ -25,6 +26,7 @@ import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.transform.PassThroughResultTransformer;
 import org.hibernate.transform.ResultTransformer;
 
+import fasttest.matchers.AndMatcher;
 import fasttest.matchers.EqualMatcher;
 import fasttest.matchers.GreaterLessThanMatcher;
 import fasttest.matchers.InMatcher;
@@ -55,7 +57,8 @@ public class InMemoryCriteria implements Criteria {
 	}
 
 	public Criteria add(Criterion criterion) {
-		matchers.add(getMatcherForCriterion(criterion));
+		InMemoryMatcher matcher = getMatcherForCriterion(criterion);
+		if (matcher != null) matchers.add(matcher);
 		return this;
 	}
 
@@ -91,6 +94,16 @@ public class InMemoryCriteria implements Criteria {
 		if (criterion instanceof NotExpression) {
 			Criterion inner = (Criterion) ObjectManipulation.getFieldValue(criterion, "criterion");
 			return new NotMatcher(getMatcherForCriterion(inner));
+		}
+		
+		if (criterion instanceof Junction) {
+			@SuppressWarnings("unchecked")
+			List<Criterion> criterions = (List<Criterion>) ObjectManipulation.getFieldValue(criterion, "criteria");
+			List<InMemoryMatcher> matchers = new ArrayList<InMemoryMatcher>();
+			for (Criterion crit : criterions) {
+				matchers.add(getMatcherForCriterion(crit));
+			}
+			return new AndMatcher(matchers);
 		}
 		
 		return null;
